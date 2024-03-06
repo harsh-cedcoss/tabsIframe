@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Tabs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    #tabs-container {
+      display: flex;
+      list-style: none;
+      padding: 0;
+      background-color: #333;
+      margin: 0;
+    }
+
+    .tab {
+      padding: 10px;
+      background-color: #555;
+      color: #fff;
+      cursor: pointer;
+      margin-right: 5px;
+      border-radius: 5px 5px 0 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .tab input {
+      margin-right: 5px;
+      padding: 5px;
+    }
+
+    .tab:hover {
+      background-color: #777;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+
+    .tab-content.active {
+      display: block;
+      width: 100%;
+      height: calc(100vh - 40px);
+      border: 1px solid #ddd;
+      border-radius: 0 0 5px 5px;
+      background-color: #fff;
+    }
+
+    #new-tab {
+      background-color: #28a745;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .close-tab {
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    #url-input {
+      width: 70%;
+      padding: 8px;
+    }
+
+    #iframe {
+      width: 100%;
+      height: 80%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <ul id="tabs-container">
+    <li class="tab" id="new-tab">+ New Tab</li>
+  </ul>
+
+  <div id="content-container">
+    <div class="tab-content active">
+        <div>
+          <input type="text" id="url-input" placeholder="Enter URL and press Enter">
+          <button id="load-url">Load URL</button>
+        </div>
+        <iframe id="iframe" frameborder="0"></iframe>
+      </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      let tabCount = 1;
+
+      function createNewTab() {
+      const newTab = $(`<li class="tab" data-tab="tab-${tabCount}">Tab ${tabCount} <span class="close-tab">X</span></li>`);
+      $('#new-tab').before(newTab);
+
+      const newTabContent = $(`<div class="tab-content" id="tab-${tabCount}"></div>`);
+      const newTabInput = $(`<input type="text" class="url-input" placeholder="Enter URL and press Enter">`);
+      const newTabButton = $(`<button class="load-url">Load URL</button>`);
+      const newIframe = $(`<iframe class="iframe" frameborder="0"></iframe>`);
+
+      newTabContent.append(newTabInput, newTabButton, newIframe);
+      $('#content-container').append(newTabContent);
+
+      tabCount++;
+
+      return newTab;
+    }
+
+    function switchTab(tab) {
+      $('.tab-content').removeClass('active');
+      $(`#${tab.data('tab')}`).addClass('active');
+    }
+
+    function closeTab(tab) {
+      const tabContentId = tab.data('tab');
+      $(`#${tabContentId}`).remove();
+      tab.remove();
+    }
+      $('#load-url').on('click', function () {
+    const url = $('#url-input').val();
+    const activeTab = $('.tab-content.active');
+    activeTab.find('iframe').attr('src', url);
+  });
+
+      // Event handlers
+      $('#new-tab').on('click', function() {
+        const newTab = createNewTab();
+        switchTab(newTab);
+      });
+
+      $('#tabs-container').on('click', '.tab', function() {
+        switchTab($(this));
+      });
+
+      $('#tabs-container').on('click', '.close-tab', function(e) {
+        e.stopPropagation();
+        closeTab($(this).parent());
+      });
+
+      $('#url-input').on('keyup', function(e) {
+        if (e.key === 'Enter') {
+          const url = $(this).val();
+          const activeTab = $('.tab-content.active');
+          activeTab.find('iframe').attr('src', url);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
